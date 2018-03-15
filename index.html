@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			button{
+				display: block;
+				margin: 10px auto;
+			}
+			.box{
+				display: flex;
+				padding: 5px;
+			}
+			.item{
+				flex: 1;
+				height: 20px;
+				border: 1px solid #000;
+				list-style: none;
+				margin: 1px;
+				background-color: #fff;
+			}
+			#loading{
+				margin-top: 10px;
+				line-height: 30px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div><button id="btn">点击打印出所有的选中作为坐标</button></div>
+		<div id="container"></div>
+		<div id="loading">加载中...</div>
+	</body>
+	<script type="text/javascript">
+		// 存放选中的作为
+		var selectorArr = [];
+		
+		// 监听滚动到底部
+		var timer = null;
+		document.onscroll = function () {
+			var scrollHight = document.documentElement.scrollHeight === 0 ? document.body.scrollHeight : document.documentElement.scrollHeight;
+			var scrollTop = document.documentElement.scrollTop === 0 ? document.body.scrollTop : document.documentElement.scrollTop;
+			var container =  document.getElementById('container');
+			if(scrollHight - scrollTop == window.innerHeight){
+				var loading = document.getElementById('loading')
+				timer = setTimeout(function() {
+					renderHtml(5, 10);
+				}, 300);
+			}
+		};
+		
+		// 点击按钮打印
+		var btn = document.getElementById('btn');
+		btn.onclick = function() {
+			console.log(selectorArr)
+			//alert(selectorArr)
+		}
+		
+		// 渲染座位的函数
+		function renderHtml(rows, cloumns) {
+			var container = document.getElementById('container')
+			for (var i = 0; i < rows; i++) {
+				var ul = document.createElement('ul');
+				ul.className = 'box'
+				for (var j = 0; j < cloumns; j++) {
+					var li = document.createElement('li');
+					li.className = 'item'
+					li.setAttribute('data-row', i+1);
+					li.setAttribute('data-col', j+1)
+					ul.appendChild(li)
+				}
+				ul.onclick = function (e) {
+					var target = e.target || e.srcElement;
+					if (target.nodeName === 'LI') {
+						if (target.style.borderColor === 'red') {
+							var coordinate = target.getAttribute('data-row') + '-' + target.getAttribute('data-col');
+							var len = selectorArr.length;
+							target.style.borderColor = '#000';
+							target.style.backgroundColor = '#fff';
+							
+							for (var i = 0;i < len; i++) {
+								if (coordinate === selectorArr[i]) {
+									selectorArr.splice(i, 1);
+									return
+								}
+							}
+						} else {
+							target.style.borderColor = 'red';
+							target.style.backgroundColor = 'red';
+							selectorArr.push(target.getAttribute('data-row') + '-' + target.getAttribute('data-col'))
+						}
+					}
+				}
+				container.appendChild(ul)
+			}
+			clearTimeout(timer)
+		}
+		renderHtml(30, 10);
+	</script>
+</html>
